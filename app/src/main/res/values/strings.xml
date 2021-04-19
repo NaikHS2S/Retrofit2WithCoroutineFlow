@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Jokes</string>
+    <string name="saved_list_is_empty">Saved list is empty.</string>
+    <string name="saved_items">Saved Items</string>
+</resources>
