@@ -6,19 +6,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class Repository @Inject constructor(private val apiService: JokeApiService) {
-    fun getJokes(): Flow<List<Unit>>
-    {
+    fun getJokes(): Flow<List<Joke>> {
         return flow {
-            val jokesList = apiService.getJokes().
-            map {
-                fromApi -> println("response from api $fromApi")
-            }
-            // Emit the list to the stream
+            val jokesList = apiService.getJokes()
+                    .map { fromApi -> fromApi}
+                    .filter { it.id > 0 }
+                    .take(8)
             emit(jokesList)
-        }.flowOn(Dispatchers.IO)// Use the IO thread for this Flow
+        }.flowOn(Dispatchers.IO)
     }
 }

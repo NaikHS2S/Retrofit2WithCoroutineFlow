@@ -34,7 +34,7 @@ class HomeFragment : Fragment() {
         initRecyclerView()
         observeData()
         setUpItemTouchHelper()
-        viewModel.jokesFromApi
+        viewModel.jokesFromApi()
     }
 
     private fun setUpItemTouchHelper() {
