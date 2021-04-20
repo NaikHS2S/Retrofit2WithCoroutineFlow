@@ -1,13 +1,15 @@
 package com.example.dev.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
 import com.example.dev.model.Joke
 import com.example.dev.repository.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.schedulers.Schedulers
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.collections.ArrayList
 
@@ -16,19 +18,18 @@ class JokesViewModel @Inject constructor(private val repository: Repository) : V
     val jokeSMutableList = MutableLiveData<ArrayList<Joke>>()
     val jokesFromApi: Unit
         get() {
-            repository.getJokes()?.subscribeOn(Schedulers.io())
-                    ?.map { response -> Log.i(TAG, "Response: ${response.toString()}")
-                        response
-                    }
-                    ?.observeOn(AndroidSchedulers.mainThread())
-                    ?.subscribe(
-                            { result -> jokeSMutableList.setValue(result)},
-                            {  error-> Log.e(TAG, "getJokes: " + error.localizedMessage)})
-
+            viewModelScope.launch {
+                repository.getJokes()
+                        .onStart { /* loading state */ }
+                        .catch { exception -> println("Exception : $exception")}
+                        .asLiveData().also {
+                            jokeSMutableList.value = (it.value ?: arrayListOf<Joke>()) as ArrayList<Joke>?
+                        }
+            }
         }
-
     companion object {
         private const val TAG = "ViewModel"
     }
-
 }
+
+

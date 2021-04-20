@@ -69,4 +69,5 @@ class HomeFragment : Fragment() {
     companion object {
         private const val TAG = "Home Fragment"
     }
+
 }

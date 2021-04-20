@@ -1,13 +1,24 @@
 package com.example.dev.repository
 
-import androidx.lifecycle.LiveData
 import com.example.dev.model.Joke
 import com.example.dev.network.JokeApiService
-import io.reactivex.rxjava3.core.Observable
-import java.util.ArrayList
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class Repository @Inject constructor(private val apiService: JokeApiService) {
-    fun getJokes(): Observable<ArrayList<Joke>?>? = apiService.getJokes()
-
+    fun getJokes(): Flow<List<Unit>>
+    {
+        return flow {
+            val jokesList = apiService.getJokes().
+            map {
+                fromApi -> println("response from api $fromApi")
+            }
+            // Emit the list to the stream
+            emit(jokesList)
+        }.flowOn(Dispatchers.IO)// Use the IO thread for this Flow
+    }
 }
